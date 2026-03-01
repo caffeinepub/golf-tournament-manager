@@ -1,12 +1,18 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import React, {
   createContext,
   useContext,
   useCallback,
-  ReactNode,
+  type ReactNode,
 } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type {
+  Player,
+  Score,
+  Tournament,
+  TournamentFormat,
+  TournamentStatus,
+} from "../backend.d";
 import { useActor } from "../hooks/useActor";
-import type { Player, Tournament, Score, TournamentFormat, TournamentStatus } from "../backend.d";
 
 // Re-export types for convenience
 export type { Player, Tournament, Score };
@@ -121,7 +127,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }) => {
       if (!actor) throw new Error("No actor");
       const id = crypto.randomUUID();
-      await actor.createTournament(id, args.name, args.date, args.format, args.location);
+      await actor.createTournament(
+        id,
+        args.name,
+        args.date,
+        args.format,
+        args.location,
+      );
     },
     onSuccess: invalidateAll,
   });
@@ -142,7 +154,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         args.date ?? null,
         args.format ?? null,
         args.status ?? null,
-        args.location ?? null
+        args.location ?? null,
       );
     },
     onSuccess: invalidateAll,
@@ -177,7 +189,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await actor.updatePlayer(
         args.id,
         args.name ?? null,
-        args.handicap != null ? BigInt(args.handicap) : null
+        args.handicap != null ? BigInt(args.handicap) : null,
       );
     },
     onSuccess: invalidateAll,
@@ -237,7 +249,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         args.tournamentId,
         args.playerId,
         BigInt(args.hole),
-        BigInt(args.strokes)
+        BigInt(args.strokes),
       );
     },
     onSuccess: (_data, variables) => {
@@ -255,7 +267,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const value: AppContextValue = {
     players: playersQuery.data ?? [],
     tournaments: tournamentsQuery.data ?? [],
-    isLoading: tournamentsQuery.isLoading || playersQuery.isLoading || isFetching,
+    isLoading:
+      tournamentsQuery.isLoading || playersQuery.isLoading || isFetching,
 
     createTournament: createTournamentMutation.mutateAsync,
     updateTournament: updateTournamentMutation.mutateAsync,

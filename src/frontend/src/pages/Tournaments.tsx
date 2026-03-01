@@ -1,14 +1,10 @@
-import { useState } from "react";
-import { Plus, Trophy } from "lucide-react";
-// No router imports needed - all navigation is done from child components
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -18,10 +14,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+// No router imports needed - all navigation is done from child components
+import { Skeleton } from "@/components/ui/skeleton";
+import { Plus, Trophy } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { useAppContext, TournamentStatus, TournamentFormat } from "../context/AppContext";
-import { TournamentCard } from "../components/TournamentCard";
 import { PageHeader } from "../components/PageHeader";
+import { TournamentCard } from "../components/TournamentCard";
+import {
+  TournamentFormat,
+  TournamentStatus,
+  useAppContext,
+} from "../context/AppContext";
 
 const STATUS_TABS = [
   { key: "all", label: "All" },
@@ -65,7 +69,7 @@ export default function Tournaments() {
     [TournamentStatus.completed]: 2,
   };
   const sorted = [...filtered].sort(
-    (a, b) => statusOrder[a.status] - statusOrder[b.status]
+    (a, b) => statusOrder[a.status] - statusOrder[b.status],
   );
 
   async function handleCreate(e: React.FormEvent) {
@@ -193,7 +197,9 @@ export default function Tournaments() {
                 id="t-name"
                 placeholder="e.g. Summer Championship"
                 value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, name: e.target.value }))
+                }
               />
             </div>
             <div className="space-y-1.5">
@@ -217,7 +223,9 @@ export default function Tournaments() {
                 id="t-date"
                 type="date"
                 value={form.date}
-                onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, date: e.target.value }))
+                }
               />
             </div>
             <div className="space-y-1.5">
@@ -232,9 +240,15 @@ export default function Tournaments() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={TournamentFormat.strokePlay}>Stroke Play</SelectItem>
-                  <SelectItem value={TournamentFormat.matchPlay}>Match Play</SelectItem>
-                  <SelectItem value={TournamentFormat.stableford}>Stableford</SelectItem>
+                  <SelectItem value={TournamentFormat.strokePlay}>
+                    Stroke Play
+                  </SelectItem>
+                  <SelectItem value={TournamentFormat.matchPlay}>
+                    Match Play
+                  </SelectItem>
+                  <SelectItem value={TournamentFormat.stableford}>
+                    Stableford
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>

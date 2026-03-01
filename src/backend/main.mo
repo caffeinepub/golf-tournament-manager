@@ -6,8 +6,15 @@ import Order "mo:core/Order";
 import Time "mo:core/Time";
 import Runtime "mo:core/Runtime";
 import Iter "mo:core/Iter";
+import Principal "mo:core/Principal";
+import AccessControl "authorization/access-control";
+import MixinAuthorization "authorization/MixinAuthorization";
 
 actor {
+  // Initialize the access control state
+  let accessControlState = AccessControl.initState();
+  include MixinAuthorization(accessControlState);
+
   // Types
   type TournamentFormat = {
     #strokePlay;
@@ -53,6 +60,12 @@ actor {
     registeredAt : Time.Time;
   };
 
+  // User Profile Type
+  public type UserProfile = {
+    username : Text;
+    email : Text;
+  };
+
   // Modules for comparison (used in sorting)
   module Tournament {
     public func compare(t1 : Tournament, t2 : Tournament) : Order.Order {
@@ -86,9 +99,35 @@ actor {
   let players = Map.empty<Text, Player>();
   let scores = Map.empty<Text, Score>();
   let tournamentPlayers = Map.empty<Text, TournamentPlayer>();
+  let userProfiles = Map.empty<Principal, UserProfile>();
 
-  // Tournament CRUD
+  // User Profile Management
+  public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view profiles");
+    };
+    userProfiles.get(caller);
+  };
+
+  public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
+    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Can only view your own profile");
+    };
+    userProfiles.get(user);
+  };
+
+  public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can save profiles");
+    };
+    userProfiles.add(caller, profile);
+  };
+
+  // Tournament CRUD - Admin only for create/update/delete
   public shared ({ caller }) func createTournament(id : Text, name : Text, date : Time.Time, format : TournamentFormat, location : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can create tournaments");
+    };
     if (tournaments.containsKey(id)) { Runtime.trap("Tournament ID already exists.") };
     let tournament : Tournament = {
       id;
@@ -103,6 +142,9 @@ actor {
   };
 
   public shared ({ caller }) func updateTournament(id : Text, name : ?Text, date : ?Time.Time, format : ?TournamentFormat, status : ?TournamentStatus, location : ?Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can update tournaments");
+    };
     switch (tournaments.get(id)) {
       case (null) { Runtime.trap("Tournament not found") };
       case (?tournament) {
@@ -121,6 +163,9 @@ actor {
   };
 
   public shared ({ caller }) func deleteTournament(id : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can delete tournaments");
+    };
     switch (tournaments.get(id)) {
       case (null) { Runtime.trap("Tournament does not exist") };
       case (?_) {};
@@ -128,6 +173,7 @@ actor {
     tournaments.remove(id);
   };
 
+  // Tournament read operations - public (no auth required)
   public query ({ caller }) func getTournament(id : Text) : async Tournament {
     switch (tournaments.get(id)) {
       case (null) { Runtime.trap("Tournament does not exist") };
@@ -139,8 +185,11 @@ actor {
     tournaments.values().toArray().sort();
   };
 
-  // Player CRUD
+  // Player CRUD - Admin only for create/update/delete
   public shared ({ caller }) func createPlayer(id : Text, name : Text, handicap : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can create players");
+    };
     if (players.containsKey(id)) { Runtime.trap("Player ID already exists.") };
     let player : Player = {
       id;
@@ -152,6 +201,9 @@ actor {
   };
 
   public shared ({ caller }) func updatePlayer(id : Text, name : ?Text, handicap : ?Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can update players");
+    };
     switch (players.get(id)) {
       case (null) { Runtime.trap("Player not found") };
       case (?player) {
@@ -167,6 +219,9 @@ actor {
   };
 
   public shared ({ caller }) func deletePlayer(id : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can delete players");
+    };
     switch (players.get(id)) {
       case (null) { Runtime.trap("Player does not exist") };
       case (?_) {};
@@ -174,6 +229,7 @@ actor {
     players.remove(id);
   };
 
+  // Player read operations - public (no auth required)
   public query ({ caller }) func getPlayer(id : Text) : async Player {
     switch (players.get(id)) {
       case (null) { Runtime.trap("Player does not exist") };
@@ -185,8 +241,11 @@ actor {
     players.values().toArray().sort();
   };
 
-  // Tournament Player Registration
+  // Tournament Player Registration - Users can register themselves
   public shared ({ caller }) func registerPlayerToTournament(tournamentId : Text, playerId : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can register for tournaments");
+    };
     if (tournaments.get(tournamentId) == null) { Runtime.trap("Tournament not found") };
     if (players.get(playerId) == null) { Runtime.trap("Player not found") };
 
@@ -202,6 +261,9 @@ actor {
   };
 
   public shared ({ caller }) func removePlayerFromTournament(tournamentId : Text, playerId : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can remove registrations");
+    };
     let key = tournamentId.concat("-").concat(playerId);
     switch (tournamentPlayers.get(key)) {
       case (null) { Runtime.trap("Player is not registered for this tournament") };
@@ -210,6 +272,7 @@ actor {
     tournamentPlayers.remove(key);
   };
 
+  // Tournament-Player queries - public (no auth required)
   public query ({ caller }) func getPlayersForTournament(tournamentId : Text) : async [Player] {
     if (tournaments.get(tournamentId) == null) { Runtime.trap("Tournament not found") };
     let playersList = List.empty<Player>();
@@ -242,8 +305,11 @@ actor {
     tournamentsList.toArray();
   };
 
-  // Score Entry and Retrieval
+  // Score Entry - Users can record scores
   public shared ({ caller }) func recordScore(id : Text, tournamentId : Text, playerId : Text, hole : Nat, strokes : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can record scores");
+    };
     if (hole < 1 or hole > 18) { Runtime.trap("Invalid hole number") };
 
     if (tournaments.get(tournamentId) == null) { Runtime.trap("Tournament not found") };
@@ -263,6 +329,7 @@ actor {
     scores.add(id, score);
   };
 
+  // Score queries - public (no auth required)
   public query ({ caller }) func getScoresForPlayer(tournamentId : Text, playerId : Text) : async [Score] {
     let scoresList = List.empty<Score>();
 
@@ -275,7 +342,7 @@ actor {
     scoresList.toArray();
   };
 
-  // Leaderboard Calculation
+  // Leaderboard - public (no auth required)
   type LeaderboardEntry = {
     player : Player;
     totalGrossScore : Nat;

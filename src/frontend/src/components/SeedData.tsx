@@ -1,7 +1,11 @@
-import { useEffect, useRef } from "react";
-import { useActor } from "../hooks/useActor";
-import { useAppContext, TournamentFormat, TournamentStatus } from "../context/AppContext";
 import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
+import {
+  TournamentFormat,
+  TournamentStatus,
+  useAppContext,
+} from "../context/AppContext";
+import { useActor } from "../hooks/useActor";
 
 const SEED_KEY = "golf-app-seeded-v1";
 
@@ -78,7 +82,7 @@ export function SeedData() {
             const id = crypto.randomUUID();
             playerIds[p.name] = id;
             await actor.createPlayer(id, p.name, BigInt(p.handicap));
-          })
+          }),
         );
 
         // 2. Create tournaments
@@ -92,21 +96,21 @@ export function SeedData() {
             "Summer Club Championship",
             nowNs(),
             TournamentFormat.strokePlay,
-            "Pebble Beach Golf Links"
+            "Pebble Beach Golf Links",
           ),
           actor.createTournament(
             stablefordId,
             "Stableford Monthly",
             daysFromNowNs(14),
             TournamentFormat.stableford,
-            "Augusta National"
+            "Augusta National",
           ),
           actor.createTournament(
             springId,
             "Spring Open",
             daysFromNowNs(-30),
             TournamentFormat.strokePlay,
-            "St Andrews Links"
+            "St Andrews Links",
           ),
         ]);
 
@@ -118,7 +122,7 @@ export function SeedData() {
             null,
             null,
             TournamentStatus.inProgress,
-            null
+            null,
           ),
           actor.updateTournament(
             springId,
@@ -126,26 +130,34 @@ export function SeedData() {
             null,
             null,
             TournamentStatus.completed,
-            null
+            null,
           ),
         ]);
 
         // 4. Register players to Summer Club Championship (all 8)
         await Promise.all(
           Object.values(playerIds).map((pid) =>
-            actor.registerPlayerToTournament(champId, pid)
-          )
+            actor.registerPlayerToTournament(champId, pid),
+          ),
         );
 
         // 5. Record scores for Summer Club Championship (holes 1-9)
         const champScorePromises: Promise<void>[] = [];
-        for (const [playerName, scores] of Object.entries(CHAMPIONSHIP_SCORES)) {
+        for (const [playerName, scores] of Object.entries(
+          CHAMPIONSHIP_SCORES,
+        )) {
           const pid = playerIds[playerName];
           if (!pid) continue;
           for (let i = 0; i < scores.length; i++) {
             const scoreId = crypto.randomUUID();
             champScorePromises.push(
-              actor.recordScore(scoreId, champId, pid, BigInt(i + 1), BigInt(scores[i]))
+              actor.recordScore(
+                scoreId,
+                champId,
+                pid,
+                BigInt(i + 1),
+                BigInt(scores[i]),
+              ),
             );
           }
         }
@@ -162,8 +174,8 @@ export function SeedData() {
         ];
         await Promise.all(
           springPlayers.map((name) =>
-            actor.registerPlayerToTournament(springId, playerIds[name])
-          )
+            actor.registerPlayerToTournament(springId, playerIds[name]),
+          ),
         );
 
         // 7. Record full 18-hole scores for Spring Open
@@ -174,7 +186,13 @@ export function SeedData() {
           for (let i = 0; i < scores.length; i++) {
             const scoreId = crypto.randomUUID();
             springScorePromises.push(
-              actor.recordScore(scoreId, springId, pid, BigInt(i + 1), BigInt(scores[i]))
+              actor.recordScore(
+                scoreId,
+                springId,
+                pid,
+                BigInt(i + 1),
+                BigInt(scores[i]),
+              ),
             );
           }
         }

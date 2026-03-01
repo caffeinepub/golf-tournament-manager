@@ -1,6 +1,4 @@
-import { useState, useEffect } from "react";
-import { BarChart2, Medal, RefreshCw } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -8,32 +6,41 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { useAppContext, TournamentFormat, TournamentStatus } from "../context/AppContext";
-import {
-  useTournamentLeaderboard,
-  usePlayersForTournament,
-} from "../hooks/useQueries";
-import { StatusBadge, FormatBadge } from "../components/StatusBadge";
-import { PlayerAvatar } from "../components/PlayerAvatar";
-import { PageHeader } from "../components/PageHeader";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
+import { BarChart2, Medal, RefreshCw } from "lucide-react";
+import { useEffect, useState } from "react";
+import { PageHeader } from "../components/PageHeader";
+import { PlayerAvatar } from "../components/PlayerAvatar";
+import { FormatBadge, StatusBadge } from "../components/StatusBadge";
+import {
+  TournamentFormat,
+  TournamentStatus,
+  useAppContext,
+} from "../context/AppContext";
+import {
+  usePlayersForTournament,
+  useTournamentLeaderboard,
+} from "../hooks/useQueries";
 
 const TOTAL_PAR = 72;
 
-function stablefordPoints(strokes: number, par: number): number {
-  const diff = strokes - par;
-  if (diff <= -2) return 4;
-  if (diff === -1) return 3;
-  if (diff === 0) return 2;
-  if (diff === 1) return 1;
-  return 0;
-}
-
 const RANK_CONFIGS = [
-  { bg: "bg-yellow-50 border-yellow-200", text: "text-yellow-600", label: "🥇" },
-  { bg: "bg-slate-50 border-slate-200", text: "text-slate-500", label: "🥈" },
-  { bg: "bg-amber-50 border-amber-200", text: "text-amber-600", label: "🥉" },
+  {
+    bg: "bg-primary/10 border-primary/30",
+    text: "text-primary",
+    label: "🥇",
+  },
+  {
+    bg: "bg-golf-silver/10 border-golf-silver/20",
+    text: "text-golf-silver",
+    label: "🥈",
+  },
+  {
+    bg: "bg-golf-bronze/10 border-golf-bronze/20",
+    text: "text-golf-bronze",
+    label: "🥉",
+  },
 ];
 
 function LeaderboardTable({
@@ -43,7 +50,11 @@ function LeaderboardTable({
   tournamentId: string;
   isStableford: boolean;
 }) {
-  const { data: leaderboard, isLoading, refetch } = useTournamentLeaderboard(tournamentId);
+  const {
+    data: leaderboard,
+    isLoading,
+    refetch,
+  } = useTournamentLeaderboard(tournamentId);
   const { data: players } = usePlayersForTournament(tournamentId);
   const queryClient = useQueryClient();
 
@@ -67,7 +78,10 @@ function LeaderboardTable({
   if (!leaderboard || leaderboard.length === 0) {
     return (
       <div className="text-center py-16 px-4">
-        <Medal size={48} className="text-muted-foreground mx-auto mb-4 opacity-40" />
+        <Medal
+          size={48}
+          className="text-muted-foreground mx-auto mb-4 opacity-40"
+        />
         <h3 className="text-base font-bold font-serif text-foreground mb-2">
           No scores yet
         </h3>
@@ -167,9 +181,9 @@ function LeaderboardTable({
                   "text-xs font-bold font-sans text-center",
                   !isStableford && toPar !== null
                     ? toPar < 0
-                      ? "text-green-600"
+                      ? "text-golf-fairway"
                       : toPar > 0
-                        ? "text-red-600"
+                        ? "text-destructive"
                         : "text-muted-foreground"
                     : "text-primary",
                 ].join(" ")}
@@ -199,7 +213,9 @@ export default function Leaderboard() {
     if (tournaments.length === 0) return;
     if (selectedId && tournaments.find((t) => t.id === selectedId)) return;
 
-    const live = tournaments.find((t) => t.status === TournamentStatus.inProgress);
+    const live = tournaments.find(
+      (t) => t.status === TournamentStatus.inProgress,
+    );
     const first = live ?? tournaments[0];
     setSelectedId(first?.id ?? "");
   }, [tournaments, selectedId]);

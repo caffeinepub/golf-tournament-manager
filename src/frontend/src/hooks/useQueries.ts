@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+import type { LeaderboardEntry, Player, Score } from "../backend.d";
 import { useActor } from "./useActor";
-import type { Player, Score, LeaderboardEntry } from "../backend.d";
 
 export function usePlayersForTournament(tournamentId: string | undefined) {
   const { actor, isFetching } = useActor();
@@ -17,7 +17,7 @@ export function usePlayersForTournament(tournamentId: string | undefined) {
 
 export function useScoresForPlayer(
   tournamentId: string | undefined,
-  playerId: string | undefined
+  playerId: string | undefined,
 ) {
   const { actor, isFetching } = useActor();
   return useQuery<Score[]>({

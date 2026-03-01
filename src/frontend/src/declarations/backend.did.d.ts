@@ -44,7 +44,13 @@ export type TournamentFormat = { 'matchPlay' : null } |
 export type TournamentStatus = { 'upcoming' : null } |
   { 'completed' : null } |
   { 'inProgress' : null };
+export interface UserProfile { 'username' : string, 'email' : string }
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
 export interface _SERVICE {
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'createPlayer' : ActorMethod<[string, string, bigint], undefined>,
   'createTournament' : ActorMethod<
     [string, string, Time, TournamentFormat, string],
@@ -54,18 +60,23 @@ export interface _SERVICE {
   'deleteTournament' : ActorMethod<[string], undefined>,
   'getAllPlayers' : ActorMethod<[], Array<Player>>,
   'getAllTournaments' : ActorMethod<[], Array<Tournament>>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getPlayer' : ActorMethod<[string], Player>,
   'getPlayersForTournament' : ActorMethod<[string], Array<Player>>,
   'getScoresForPlayer' : ActorMethod<[string, string], Array<Score>>,
   'getTournament' : ActorMethod<[string], Tournament>,
   'getTournamentLeaderboard' : ActorMethod<[string], Array<LeaderboardEntry>>,
   'getTournamentsForPlayer' : ActorMethod<[string], Array<Tournament>>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
   'recordScore' : ActorMethod<
     [string, string, string, bigint, bigint],
     undefined
   >,
   'registerPlayerToTournament' : ActorMethod<[string, string], undefined>,
   'removePlayerFromTournament' : ActorMethod<[string, string], undefined>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'updatePlayer' : ActorMethod<
     [string, [] | [string], [] | [bigint]],
     undefined

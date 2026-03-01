@@ -1,26 +1,40 @@
-import { createRouter, RouterProvider, createRootRoute, createRoute, Outlet } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
-import { AppProvider } from "./context/AppContext";
+import {
+  Outlet,
+  RouterProvider,
+  createRootRoute,
+  createRoute,
+  createRouter,
+} from "@tanstack/react-router";
 import { BottomNav } from "./components/BottomNav";
+import { ProfileCompletionModal } from "./components/ProfileCompletionModal";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { SeedData } from "./components/SeedData";
+import { AppProvider } from "./context/AppContext";
+import { AuthProvider } from "./context/AuthContext";
 import Dashboard from "./pages/Dashboard";
-import Tournaments from "./pages/Tournaments";
-import TournamentDetail from "./pages/TournamentDetail";
-import Players from "./pages/Players";
-import PlayerDetail from "./pages/PlayerDetail";
 import Leaderboard from "./pages/Leaderboard";
+import PlayerDetail from "./pages/PlayerDetail";
+import Players from "./pages/Players";
+import TournamentDetail from "./pages/TournamentDetail";
+import Tournaments from "./pages/Tournaments";
 
 // Root layout
 const rootRoute = createRootRoute({
   component: () => (
-    <AppProvider>
-      <SeedData />
-      <div className="min-h-screen bg-background">
-        <Outlet />
-        <BottomNav />
-      </div>
+    <AuthProvider>
+      <ProtectedRoute>
+        <AppProvider>
+          <SeedData />
+          <div className="min-h-screen bg-background">
+            <Outlet />
+            <BottomNav />
+          </div>
+          <ProfileCompletionModal />
+        </AppProvider>
+      </ProtectedRoute>
       <Toaster richColors position="top-center" />
-    </AppProvider>
+    </AuthProvider>
   ),
 });
 

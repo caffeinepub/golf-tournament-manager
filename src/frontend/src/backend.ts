@@ -117,6 +117,10 @@ export interface Tournament {
     location: string;
     format: TournamentFormat;
 }
+export interface UserProfile {
+    username: string;
+    email: string;
+}
 export enum TournamentFormat {
     matchPlay = "matchPlay",
     stableford = "stableford",
@@ -127,28 +131,68 @@ export enum TournamentStatus {
     completed = "completed",
     inProgress = "inProgress"
 }
+export enum UserRole {
+    admin = "admin",
+    user = "user",
+    guest = "guest"
+}
 export interface backendInterface {
+    _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
+    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     createPlayer(id: string, name: string, handicap: bigint): Promise<void>;
     createTournament(id: string, name: string, date: Time, format: TournamentFormat, location: string): Promise<void>;
     deletePlayer(id: string): Promise<void>;
     deleteTournament(id: string): Promise<void>;
     getAllPlayers(): Promise<Array<Player>>;
     getAllTournaments(): Promise<Array<Tournament>>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
+    getCallerUserRole(): Promise<UserRole>;
     getPlayer(id: string): Promise<Player>;
     getPlayersForTournament(tournamentId: string): Promise<Array<Player>>;
     getScoresForPlayer(tournamentId: string, playerId: string): Promise<Array<Score>>;
     getTournament(id: string): Promise<Tournament>;
     getTournamentLeaderboard(tournamentId: string): Promise<Array<LeaderboardEntry>>;
     getTournamentsForPlayer(playerId: string): Promise<Array<Tournament>>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
+    isCallerAdmin(): Promise<boolean>;
     recordScore(id: string, tournamentId: string, playerId: string, hole: bigint, strokes: bigint): Promise<void>;
     registerPlayerToTournament(tournamentId: string, playerId: string): Promise<void>;
     removePlayerFromTournament(tournamentId: string, playerId: string): Promise<void>;
+    saveCallerUserProfile(profile: UserProfile): Promise<void>;
     updatePlayer(id: string, name: string | null, handicap: bigint | null): Promise<void>;
     updateTournament(id: string, name: string | null, date: Time | null, format: TournamentFormat | null, status: TournamentStatus | null, location: string | null): Promise<void>;
 }
-import type { Time as _Time, Tournament as _Tournament, TournamentFormat as _TournamentFormat, TournamentStatus as _TournamentStatus } from "./declarations/backend.did.d.ts";
+import type { Time as _Time, Tournament as _Tournament, TournamentFormat as _TournamentFormat, TournamentStatus as _TournamentStatus, UserProfile as _UserProfile, UserRole as _UserRole } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
+    async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor._initializeAccessControlWithSecret(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor._initializeAccessControlWithSecret(arg0);
+            return result;
+        }
+    }
+    async assignCallerUserRole(arg0: Principal, arg1: UserRole): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n1(this._uploadFile, this._downloadFile, arg1));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n1(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
     async createPlayer(arg0: string, arg1: string, arg2: bigint): Promise<void> {
         if (this.processError) {
             try {
@@ -166,14 +210,14 @@ export class Backend implements backendInterface {
     async createTournament(arg0: string, arg1: string, arg2: Time, arg3: TournamentFormat, arg4: string): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.createTournament(arg0, arg1, arg2, to_candid_TournamentFormat_n1(this._uploadFile, this._downloadFile, arg3), arg4);
+                const result = await this.actor.createTournament(arg0, arg1, arg2, to_candid_TournamentFormat_n3(this._uploadFile, this._downloadFile, arg3), arg4);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createTournament(arg0, arg1, arg2, to_candid_TournamentFormat_n1(this._uploadFile, this._downloadFile, arg3), arg4);
+            const result = await this.actor.createTournament(arg0, arg1, arg2, to_candid_TournamentFormat_n3(this._uploadFile, this._downloadFile, arg3), arg4);
             return result;
         }
     }
@@ -223,14 +267,42 @@ export class Backend implements backendInterface {
         if (this.processError) {
             try {
                 const result = await this.actor.getAllTournaments();
-                return from_candid_vec_n3(this._uploadFile, this._downloadFile, result);
+                return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getAllTournaments();
-            return from_candid_vec_n3(this._uploadFile, this._downloadFile, result);
+            return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCallerUserProfile(): Promise<UserProfile | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCallerUserProfile();
+                return from_candid_opt_n12(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCallerUserProfile();
+            return from_candid_opt_n12(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCallerUserRole(): Promise<UserRole> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCallerUserRole();
+                return from_candid_UserRole_n13(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCallerUserRole();
+            return from_candid_UserRole_n13(this._uploadFile, this._downloadFile, result);
         }
     }
     async getPlayer(arg0: string): Promise<Player> {
@@ -279,14 +351,14 @@ export class Backend implements backendInterface {
         if (this.processError) {
             try {
                 const result = await this.actor.getTournament(arg0);
-                return from_candid_Tournament_n4(this._uploadFile, this._downloadFile, result);
+                return from_candid_Tournament_n6(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getTournament(arg0);
-            return from_candid_Tournament_n4(this._uploadFile, this._downloadFile, result);
+            return from_candid_Tournament_n6(this._uploadFile, this._downloadFile, result);
         }
     }
     async getTournamentLeaderboard(arg0: string): Promise<Array<LeaderboardEntry>> {
@@ -307,14 +379,42 @@ export class Backend implements backendInterface {
         if (this.processError) {
             try {
                 const result = await this.actor.getTournamentsForPlayer(arg0);
-                return from_candid_vec_n3(this._uploadFile, this._downloadFile, result);
+                return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getTournamentsForPlayer(arg0);
-            return from_candid_vec_n3(this._uploadFile, this._downloadFile, result);
+            return from_candid_vec_n5(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getUserProfile(arg0);
+                return from_candid_opt_n12(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getUserProfile(arg0);
+            return from_candid_opt_n12(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async isCallerAdmin(): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.isCallerAdmin();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.isCallerAdmin();
+            return result;
         }
     }
     async recordScore(arg0: string, arg1: string, arg2: string, arg3: bigint, arg4: bigint): Promise<void> {
@@ -359,45 +459,65 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async updatePlayer(arg0: string, arg1: string | null, arg2: bigint | null): Promise<void> {
+    async saveCallerUserProfile(arg0: UserProfile): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.updatePlayer(arg0, to_candid_opt_n10(this._uploadFile, this._downloadFile, arg1), to_candid_opt_n11(this._uploadFile, this._downloadFile, arg2));
+                const result = await this.actor.saveCallerUserProfile(arg0);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updatePlayer(arg0, to_candid_opt_n10(this._uploadFile, this._downloadFile, arg1), to_candid_opt_n11(this._uploadFile, this._downloadFile, arg2));
+            const result = await this.actor.saveCallerUserProfile(arg0);
+            return result;
+        }
+    }
+    async updatePlayer(arg0: string, arg1: string | null, arg2: bigint | null): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updatePlayer(arg0, to_candid_opt_n15(this._uploadFile, this._downloadFile, arg1), to_candid_opt_n16(this._uploadFile, this._downloadFile, arg2));
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updatePlayer(arg0, to_candid_opt_n15(this._uploadFile, this._downloadFile, arg1), to_candid_opt_n16(this._uploadFile, this._downloadFile, arg2));
             return result;
         }
     }
     async updateTournament(arg0: string, arg1: string | null, arg2: Time | null, arg3: TournamentFormat | null, arg4: TournamentStatus | null, arg5: string | null): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateTournament(arg0, to_candid_opt_n10(this._uploadFile, this._downloadFile, arg1), to_candid_opt_n12(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n14(this._uploadFile, this._downloadFile, arg4), to_candid_opt_n10(this._uploadFile, this._downloadFile, arg5));
+                const result = await this.actor.updateTournament(arg0, to_candid_opt_n15(this._uploadFile, this._downloadFile, arg1), to_candid_opt_n17(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n18(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n19(this._uploadFile, this._downloadFile, arg4), to_candid_opt_n15(this._uploadFile, this._downloadFile, arg5));
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateTournament(arg0, to_candid_opt_n10(this._uploadFile, this._downloadFile, arg1), to_candid_opt_n12(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n13(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n14(this._uploadFile, this._downloadFile, arg4), to_candid_opt_n10(this._uploadFile, this._downloadFile, arg5));
+            const result = await this.actor.updateTournament(arg0, to_candid_opt_n15(this._uploadFile, this._downloadFile, arg1), to_candid_opt_n17(this._uploadFile, this._downloadFile, arg2), to_candid_opt_n18(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n19(this._uploadFile, this._downloadFile, arg4), to_candid_opt_n15(this._uploadFile, this._downloadFile, arg5));
             return result;
         }
     }
 }
-function from_candid_TournamentFormat_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _TournamentFormat): TournamentFormat {
+function from_candid_TournamentFormat_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _TournamentFormat): TournamentFormat {
+    return from_candid_variant_n11(_uploadFile, _downloadFile, value);
+}
+function from_candid_TournamentStatus_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _TournamentStatus): TournamentStatus {
     return from_candid_variant_n9(_uploadFile, _downloadFile, value);
 }
-function from_candid_TournamentStatus_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _TournamentStatus): TournamentStatus {
-    return from_candid_variant_n7(_uploadFile, _downloadFile, value);
+function from_candid_Tournament_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Tournament): Tournament {
+    return from_candid_record_n7(_uploadFile, _downloadFile, value);
 }
-function from_candid_Tournament_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _Tournament): Tournament {
-    return from_candid_record_n5(_uploadFile, _downloadFile, value);
+function from_candid_UserRole_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
+    return from_candid_variant_n14(_uploadFile, _downloadFile, value);
 }
-function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_opt_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_record_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: string;
     status: _TournamentStatus;
     date: _Time;
@@ -416,24 +536,15 @@ function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint
 } {
     return {
         id: value.id,
-        status: from_candid_TournamentStatus_n6(_uploadFile, _downloadFile, value.status),
+        status: from_candid_TournamentStatus_n8(_uploadFile, _downloadFile, value.status),
         date: value.date,
         name: value.name,
         createdAt: value.createdAt,
         location: value.location,
-        format: from_candid_TournamentFormat_n8(_uploadFile, _downloadFile, value.format)
+        format: from_candid_TournamentFormat_n10(_uploadFile, _downloadFile, value.format)
     };
 }
-function from_candid_variant_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
-    upcoming: null;
-} | {
-    completed: null;
-} | {
-    inProgress: null;
-}): TournamentStatus {
-    return "upcoming" in value ? TournamentStatus.upcoming : "completed" in value ? TournamentStatus.completed : "inProgress" in value ? TournamentStatus.inProgress : value;
-}
-function from_candid_variant_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_variant_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     matchPlay: null;
 } | {
     stableford: null;
@@ -442,31 +553,67 @@ function from_candid_variant_n9(_uploadFile: (file: ExternalBlob) => Promise<Uin
 }): TournamentFormat {
     return "matchPlay" in value ? TournamentFormat.matchPlay : "stableford" in value ? TournamentFormat.stableford : "strokePlay" in value ? TournamentFormat.strokePlay : value;
 }
-function from_candid_vec_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Tournament>): Array<Tournament> {
-    return value.map((x)=>from_candid_Tournament_n4(_uploadFile, _downloadFile, x));
+function from_candid_variant_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    admin: null;
+} | {
+    user: null;
+} | {
+    guest: null;
+}): UserRole {
+    return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
 }
-function to_candid_TournamentFormat_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: TournamentFormat): _TournamentFormat {
+function from_candid_variant_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    upcoming: null;
+} | {
+    completed: null;
+} | {
+    inProgress: null;
+}): TournamentStatus {
+    return "upcoming" in value ? TournamentStatus.upcoming : "completed" in value ? TournamentStatus.completed : "inProgress" in value ? TournamentStatus.inProgress : value;
+}
+function from_candid_vec_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_Tournament>): Array<Tournament> {
+    return value.map((x)=>from_candid_Tournament_n6(_uploadFile, _downloadFile, x));
+}
+function to_candid_TournamentFormat_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: TournamentFormat): _TournamentFormat {
+    return to_candid_variant_n4(_uploadFile, _downloadFile, value);
+}
+function to_candid_TournamentStatus_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: TournamentStatus): _TournamentStatus {
+    return to_candid_variant_n21(_uploadFile, _downloadFile, value);
+}
+function to_candid_UserRole_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): _UserRole {
     return to_candid_variant_n2(_uploadFile, _downloadFile, value);
 }
-function to_candid_TournamentStatus_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: TournamentStatus): _TournamentStatus {
-    return to_candid_variant_n16(_uploadFile, _downloadFile, value);
-}
-function to_candid_opt_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: string | null): [] | [string] {
+function to_candid_opt_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: string | null): [] | [string] {
     return value === null ? candid_none() : candid_some(value);
 }
-function to_candid_opt_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: bigint | null): [] | [bigint] {
+function to_candid_opt_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: bigint | null): [] | [bigint] {
     return value === null ? candid_none() : candid_some(value);
 }
-function to_candid_opt_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Time | null): [] | [_Time] {
+function to_candid_opt_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Time | null): [] | [_Time] {
     return value === null ? candid_none() : candid_some(value);
 }
-function to_candid_opt_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: TournamentFormat | null): [] | [_TournamentFormat] {
-    return value === null ? candid_none() : candid_some(to_candid_TournamentFormat_n1(_uploadFile, _downloadFile, value));
+function to_candid_opt_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: TournamentFormat | null): [] | [_TournamentFormat] {
+    return value === null ? candid_none() : candid_some(to_candid_TournamentFormat_n3(_uploadFile, _downloadFile, value));
 }
-function to_candid_opt_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: TournamentStatus | null): [] | [_TournamentStatus] {
-    return value === null ? candid_none() : candid_some(to_candid_TournamentStatus_n15(_uploadFile, _downloadFile, value));
+function to_candid_opt_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: TournamentStatus | null): [] | [_TournamentStatus] {
+    return value === null ? candid_none() : candid_some(to_candid_TournamentStatus_n20(_uploadFile, _downloadFile, value));
 }
-function to_candid_variant_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: TournamentStatus): {
+function to_candid_variant_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): {
+    admin: null;
+} | {
+    user: null;
+} | {
+    guest: null;
+} {
+    return value == UserRole.admin ? {
+        admin: null
+    } : value == UserRole.user ? {
+        user: null
+    } : value == UserRole.guest ? {
+        guest: null
+    } : value;
+}
+function to_candid_variant_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: TournamentStatus): {
     upcoming: null;
 } | {
     completed: null;
@@ -481,7 +628,7 @@ function to_candid_variant_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint
         inProgress: null
     } : value;
 }
-function to_candid_variant_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: TournamentFormat): {
+function to_candid_variant_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: TournamentFormat): {
     matchPlay: null;
 } | {
     stableford: null;

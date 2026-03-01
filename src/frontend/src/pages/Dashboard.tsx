@@ -1,8 +1,9 @@
-import { useNavigate } from "@tanstack/react-router";
-import { Trophy, Users, Activity, ChevronRight, Flag } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAppContext, TournamentStatus } from "../context/AppContext";
+import { useNavigate } from "@tanstack/react-router";
+import { Activity, ChevronRight, Flag, Trophy, Users } from "lucide-react";
 import { TournamentCard } from "../components/TournamentCard";
+import { TournamentStatus, useAppContext } from "../context/AppContext";
+import { useAuthContext } from "../context/AuthContext";
 
 function StatCard({
   icon: Icon,
@@ -17,12 +18,18 @@ function StatCard({
 }) {
   return (
     <div className="bg-card rounded-xl p-4 shadow-card border border-border flex items-center gap-3">
-      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${color}`}>
+      <div
+        className={`w-10 h-10 rounded-lg flex items-center justify-center ${color}`}
+      >
         <Icon size={18} />
       </div>
       <div>
-        <p className="text-xl font-bold font-serif text-foreground leading-none">{value}</p>
-        <p className="text-xs text-muted-foreground font-sans mt-0.5">{label}</p>
+        <p className="text-xl font-bold font-serif text-foreground leading-none">
+          {value}
+        </p>
+        <p className="text-xs text-muted-foreground font-sans mt-0.5">
+          {label}
+        </p>
       </div>
     </div>
   );
@@ -31,12 +38,17 @@ function StatCard({
 export default function Dashboard() {
   const navigate = useNavigate();
   const { tournaments, players, isLoading } = useAppContext();
+  const { userProfile } = useAuthContext();
 
   const inProgress = tournaments.filter(
-    (t) => t.status === TournamentStatus.inProgress
+    (t) => t.status === TournamentStatus.inProgress,
   );
-  const upcoming = tournaments.filter((t) => t.status === TournamentStatus.upcoming);
-  const completed = tournaments.filter((t) => t.status === TournamentStatus.completed);
+  const upcoming = tournaments.filter(
+    (t) => t.status === TournamentStatus.upcoming,
+  );
+  const completed = tournaments.filter(
+    (t) => t.status === TournamentStatus.completed,
+  );
 
   return (
     <main className="min-h-screen pb-nav bg-background">
@@ -50,12 +62,12 @@ export default function Dashboard() {
             </span>
           </div>
           <h1 className="text-3xl font-bold font-serif text-white leading-tight">
-            Tournament
-            <br />
-            Dashboard
+            {userProfile
+              ? `Bonjour, ${userProfile.username.split(" ")[0]} 👋`
+              : "Tournament Dashboard"}
           </h1>
           <p className="text-white/60 text-sm font-sans mt-2">
-            {new Date().toLocaleDateString("en-US", {
+            {new Date().toLocaleDateString("fr-FR", {
               weekday: "long",
               month: "long",
               day: "numeric",
@@ -90,7 +102,7 @@ export default function Dashboard() {
               icon={Activity}
               label="Live Now"
               value={inProgress.length}
-              color="bg-green-100 text-green-700"
+              color="bg-primary/15 text-primary"
             />
           </div>
         )}
@@ -107,7 +119,7 @@ export default function Dashboard() {
           <section className="mb-6 page-enter">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-base font-bold font-serif text-foreground flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green-500 status-pulse" />
+                <span className="w-2 h-2 rounded-full bg-primary status-pulse" />
                 Active Tournaments
               </h2>
               <button
@@ -168,7 +180,10 @@ export default function Dashboard() {
         {/* Empty State */}
         {!isLoading && tournaments.length === 0 && (
           <div className="text-center py-16 page-enter">
-            <Trophy size={48} className="text-muted-foreground mx-auto mb-4 opacity-40" />
+            <Trophy
+              size={48}
+              className="text-muted-foreground mx-auto mb-4 opacity-40"
+            />
             <h3 className="text-lg font-bold font-serif text-foreground mb-2">
               No tournaments yet
             </h3>

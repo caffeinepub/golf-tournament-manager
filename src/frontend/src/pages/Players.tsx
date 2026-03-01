@@ -1,20 +1,20 @@
-import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
-import { Plus, Users, ChevronRight, Search } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useNavigate } from "@tanstack/react-router";
+import { ChevronRight, Plus, Search, Users } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
-import { useAppContext } from "../context/AppContext";
-import { PlayerAvatar } from "../components/PlayerAvatar";
 import { PageHeader } from "../components/PageHeader";
+import { PlayerAvatar } from "../components/PlayerAvatar";
+import { useAppContext } from "../context/AppContext";
 
 interface PlayerFormData {
   name: string;
@@ -32,9 +32,7 @@ export default function Players() {
   const [search, setSearch] = useState("");
 
   const filtered = search.trim()
-    ? players.filter((p) =>
-        p.name.toLowerCase().includes(search.toLowerCase())
-      )
+    ? players.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
     : players;
 
   // Sort alphabetically
@@ -42,12 +40,12 @@ export default function Players() {
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
-    const hcp = parseInt(form.handicap);
+    const hcp = Number.parseInt(form.handicap);
     if (!form.name.trim()) {
       toast.error("Please enter a player name");
       return;
     }
-    if (isNaN(hcp) || hcp < 0 || hcp > 54) {
+    if (Number.isNaN(hcp) || hcp < 0 || hcp > 54) {
       toast.error("Handicap must be between 0 and 54");
       return;
     }
@@ -101,7 +99,12 @@ export default function Players() {
                 type="button"
                 key={player.id}
                 className="w-full flex items-center gap-3 bg-card rounded-xl p-3 border border-border hover:shadow-card-hover transition-all text-left active:scale-[0.99]"
-                onClick={() => void navigate({ to: "/players/$id", params: { id: player.id } })}
+                onClick={() =>
+                  void navigate({
+                    to: "/players/$id",
+                    params: { id: player.id },
+                  })
+                }
               >
                 <PlayerAvatar name={player.name} />
                 <div className="flex-1 min-w-0">
@@ -162,7 +165,9 @@ export default function Players() {
                 id="p-name"
                 placeholder="e.g. John Smith"
                 value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, name: e.target.value }))
+                }
                 autoFocus
               />
             </div>
@@ -177,7 +182,9 @@ export default function Players() {
                 max={54}
                 placeholder="e.g. 12"
                 value={form.handicap}
-                onChange={(e) => setForm((f) => ({ ...f, handicap: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, handicap: e.target.value }))
+                }
               />
             </div>
             <div className="flex gap-2 pt-2">

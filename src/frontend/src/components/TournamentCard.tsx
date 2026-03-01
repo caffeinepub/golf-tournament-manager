@@ -1,8 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
-import { Calendar, MapPin, Users, ChevronRight } from "lucide-react";
-import { Tournament, TournamentStatus } from "../context/AppContext";
-import { StatusBadge, FormatBadge } from "./StatusBadge";
+import { Calendar, ChevronRight, MapPin, Users } from "lucide-react";
+import { type Tournament, TournamentStatus } from "../context/AppContext";
 import { usePlayersForTournament } from "../hooks/useQueries";
+import { FormatBadge, StatusBadge } from "./StatusBadge";
 
 interface TournamentCardProps {
   tournament: Tournament;
@@ -39,13 +39,15 @@ export function TournamentCard({ tournament }: TournamentCardProps) {
       className={[
         "w-full text-left bg-card rounded-xl shadow-card hover:shadow-card-hover",
         "border transition-all duration-200 active:scale-[0.99]",
-        isLive ? "border-green-200" : "border-border",
+        isLive ? "border-primary/40" : "border-border",
       ].join(" ")}
-      onClick={() => void navigate({ to: "/tournaments/$id", params: { id: tournament.id } })}
+      onClick={() =>
+        void navigate({ to: "/tournaments/$id", params: { id: tournament.id } })
+      }
     >
-      {/* Green accent top bar for live tournaments */}
+      {/* Gold accent top bar for live tournaments */}
       {isLive && (
-        <div className="h-1 rounded-t-xl bg-gradient-to-r from-green-600 to-green-400" />
+        <div className="h-0.5 rounded-t-xl bg-gradient-to-r from-primary/70 via-primary to-primary/70" />
       )}
 
       <div className="p-4">
@@ -59,7 +61,10 @@ export function TournamentCard({ tournament }: TournamentCardProps) {
               <FormatBadge format={tournament.format} />
             </div>
           </div>
-          <ChevronRight size={18} className="text-muted-foreground shrink-0 mt-0.5" />
+          <ChevronRight
+            size={18}
+            className="text-muted-foreground shrink-0 mt-0.5"
+          />
         </div>
 
         <div className="flex flex-col gap-1.5">

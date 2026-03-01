@@ -2,121 +2,145 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('/assets/fonts/PlayfairDisplay-VariableFont_wght.woff2') format('woff2');
+  font-weight: 400 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('/assets/fonts/PlayfairDisplay-Italic-VariableFont_wght.woff2') format('woff2');
+  font-weight: 400 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('/assets/fonts/CabinetGrotesk-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 @layer base {
   :root {
-    --radius: 0.75rem;
+    --radius: 0.625rem;
 
-    /* Golf-themed color palette */
-    /* Background: warm cream */
-    --background: 0.97 0.01 95;
-    /* Foreground: dark ink */
-    --foreground: 0.18 0.02 200;
+    /* === NAVY & GOLD PALETTE === */
 
-    /* Card: white */
-    --card: 0.99 0 0;
-    --card-foreground: 0.18 0.02 200;
+    /* Background: deep navy */
+    --background: 0.17 0.04 258;
+    /* Foreground: soft cream white */
+    --foreground: 0.95 0.01 95;
+
+    /* Card: slightly lighter navy */
+    --card: 0.21 0.05 258;
+    --card-foreground: 0.95 0.01 95;
 
     /* Popover */
-    --popover: 0.99 0 0;
-    --popover-foreground: 0.18 0.02 200;
+    --popover: 0.21 0.05 258;
+    --popover-foreground: 0.95 0.01 95;
 
-    /* Primary: deep hunter green */
-    --primary: 0.32 0.09 155;
-    --primary-foreground: 0.98 0.005 95;
+    /* Primary: warm gold */
+    --primary: 0.78 0.14 85;
+    --primary-foreground: 0.12 0.04 258;
 
-    /* Secondary: sage green tint */
-    --secondary: 0.92 0.03 145;
-    --secondary-foreground: 0.28 0.07 155;
+    /* Secondary: medium navy */
+    --secondary: 0.28 0.07 258;
+    --secondary-foreground: 0.88 0.02 95;
 
-    /* Muted: warm off-white */
-    --muted: 0.94 0.01 95;
-    --muted-foreground: 0.52 0.02 180;
+    /* Muted: dark muted navy */
+    --muted: 0.24 0.05 258;
+    --muted-foreground: 0.62 0.04 240;
 
-    /* Accent: brass/gold */
-    --accent: 0.82 0.08 85;
-    --accent-foreground: 0.22 0.04 60;
+    /* Accent: bright gold */
+    --accent: 0.80 0.16 86;
+    --accent-foreground: 0.12 0.04 258;
 
     /* Destructive */
-    --destructive: 0.55 0.22 27;
+    --destructive: 0.60 0.22 27;
     --destructive-foreground: 0.98 0 0;
 
-    /* Border: warm gray-green */
-    --border: 0.88 0.02 145;
-    --input: 0.88 0.02 145;
-    --ring: 0.42 0.09 155;
+    /* Border: subtle navy-blue border */
+    --border: 0.30 0.06 258;
+    --input: 0.28 0.06 258;
+    --ring: 0.78 0.14 85;
 
     /* Charts */
-    --chart-1: 0.52 0.15 155;
-    --chart-2: 0.68 0.12 85;
-    --chart-3: 0.45 0.12 25;
-    --chart-4: 0.62 0.10 195;
-    --chart-5: 0.78 0.08 100;
+    --chart-1: 0.78 0.14 85;
+    --chart-2: 0.55 0.12 258;
+    --chart-3: 0.68 0.10 220;
+    --chart-4: 0.70 0.12 60;
+    --chart-5: 0.60 0.10 200;
 
-    /* Sidebar */
-    --sidebar: 0.28 0.08 155;
-    --sidebar-foreground: 0.95 0.01 95;
-    --sidebar-primary: 0.65 0.15 145;
-    --sidebar-primary-foreground: 0.98 0 0;
-    --sidebar-accent: 0.38 0.07 155;
-    --sidebar-accent-foreground: 0.95 0.01 95;
-    --sidebar-border: 0.35 0.06 155;
-    --sidebar-ring: 0.55 0.12 145;
+    /* Sidebar: darkest navy */
+    --sidebar: 0.13 0.04 258;
+    --sidebar-foreground: 0.92 0.01 95;
+    --sidebar-primary: 0.78 0.14 85;
+    --sidebar-primary-foreground: 0.12 0.04 258;
+    --sidebar-accent: 0.22 0.06 258;
+    --sidebar-accent-foreground: 0.92 0.01 95;
+    --sidebar-border: 0.26 0.06 258;
+    --sidebar-ring: 0.78 0.14 85;
 
-    /* Golf-specific custom tokens */
-    --golf-fairway: 0.42 0.14 148;
-    --golf-rough: 0.32 0.09 155;
-    --golf-flag: 0.62 0.18 30;
-    --golf-sand: 0.88 0.06 85;
-    --golf-sky: 0.72 0.10 220;
-    --golf-gold: 0.78 0.12 72;
-    --golf-silver: 0.72 0.01 200;
-    --golf-bronze: 0.65 0.08 60;
+    /* Golf-specific tokens — navy/gold re-themed */
+    --golf-fairway: 0.48 0.12 155;
+    --golf-rough: 0.36 0.08 160;
+    --golf-flag: 0.60 0.18 30;
+    --golf-sand: 0.82 0.08 90;
+    --golf-sky: 0.62 0.10 240;
+    --golf-gold: 0.78 0.14 85;
+    --golf-silver: 0.74 0.02 200;
+    --golf-bronze: 0.65 0.10 55;
   }
 
+  /* Keep same dark theme (app is already dark/navy) */
   .dark {
-    --background: 0.14 0.03 155;
+    --background: 0.13 0.04 258;
     --foreground: 0.95 0.01 95;
-    --card: 0.20 0.04 155;
+    --card: 0.17 0.05 258;
     --card-foreground: 0.95 0.01 95;
-    --popover: 0.22 0.04 155;
+    --popover: 0.18 0.05 258;
     --popover-foreground: 0.95 0.01 95;
-    --primary: 0.65 0.15 145;
-    --primary-foreground: 0.18 0.04 155;
-    --secondary: 0.26 0.05 155;
-    --secondary-foreground: 0.90 0.02 95;
-    --muted: 0.24 0.04 155;
-    --muted-foreground: 0.68 0.03 160;
-    --accent: 0.78 0.10 80;
-    --accent-foreground: 0.18 0.04 60;
+    --primary: 0.78 0.14 85;
+    --primary-foreground: 0.12 0.04 258;
+    --secondary: 0.24 0.06 258;
+    --secondary-foreground: 0.88 0.02 95;
+    --muted: 0.20 0.05 258;
+    --muted-foreground: 0.60 0.04 240;
+    --accent: 0.80 0.16 86;
+    --accent-foreground: 0.12 0.04 258;
     --destructive: 0.65 0.20 25;
     --destructive-foreground: 0.98 0 0;
-    --border: 0.28 0.05 155;
-    --input: 0.28 0.05 155;
-    --ring: 0.55 0.12 145;
-    --chart-1: 0.65 0.18 145;
-    --chart-2: 0.72 0.12 85;
-    --chart-3: 0.60 0.14 25;
-    --chart-4: 0.58 0.12 195;
-    --chart-5: 0.70 0.09 100;
-    --sidebar: 0.20 0.05 155;
-    --sidebar-foreground: 0.95 0.01 95;
-    --sidebar-primary: 0.65 0.15 145;
-    --sidebar-primary-foreground: 0.98 0 0;
-    --sidebar-accent: 0.26 0.05 155;
-    --sidebar-accent-foreground: 0.95 0.01 95;
-    --sidebar-border: 0.28 0.05 155;
-    --sidebar-ring: 0.55 0.12 145;
+    --border: 0.26 0.06 258;
+    --input: 0.26 0.06 258;
+    --ring: 0.78 0.14 85;
+    --chart-1: 0.80 0.16 85;
+    --chart-2: 0.58 0.12 258;
+    --chart-3: 0.68 0.10 220;
+    --chart-4: 0.72 0.12 60;
+    --chart-5: 0.62 0.10 200;
+    --sidebar: 0.11 0.03 258;
+    --sidebar-foreground: 0.92 0.01 95;
+    --sidebar-primary: 0.78 0.14 85;
+    --sidebar-primary-foreground: 0.12 0.04 258;
+    --sidebar-accent: 0.18 0.05 258;
+    --sidebar-accent-foreground: 0.92 0.01 95;
+    --sidebar-border: 0.22 0.05 258;
+    --sidebar-ring: 0.78 0.14 85;
 
-    --golf-fairway: 0.58 0.16 148;
-    --golf-rough: 0.42 0.12 155;
-    --golf-flag: 0.68 0.18 30;
-    --golf-sand: 0.75 0.06 85;
-    --golf-sky: 0.62 0.12 220;
-    --golf-gold: 0.78 0.14 72;
-    --golf-silver: 0.75 0.02 200;
-    --golf-bronze: 0.68 0.08 60;
+    --golf-fairway: 0.55 0.14 155;
+    --golf-rough: 0.42 0.10 160;
+    --golf-flag: 0.65 0.18 30;
+    --golf-sand: 0.76 0.07 90;
+    --golf-sky: 0.62 0.12 240;
+    --golf-gold: 0.80 0.16 85;
+    --golf-silver: 0.76 0.02 200;
+    --golf-bronze: 0.68 0.10 55;
   }
 
   * {
@@ -125,22 +149,22 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Cabinet Grotesk', 'DM Sans', system-ui, sans-serif;
     -webkit-tap-highlight-color: transparent;
   }
 
   h1, h2, h3 {
-    font-family: 'Libre Baskerville', Georgia, serif;
+    font-family: 'Playfair Display', Georgia, serif;
   }
 }
 
 @layer utilities {
   .font-serif {
-    font-family: 'Libre Baskerville', Georgia, serif;
+    font-family: 'Playfair Display', Georgia, serif;
   }
 
   .font-sans {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Cabinet Grotesk', 'DM Sans', sans-serif;
   }
 
   /* Bottom nav safe area */
@@ -148,14 +172,15 @@
     padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
   }
 
-  /* Green gradient header */
+  /* Navy & Gold gradient header */
   .header-gradient {
     background: linear-gradient(
       135deg,
-      oklch(0.28 0.08 158) 0%,
-      oklch(0.38 0.12 148) 60%,
-      oklch(0.32 0.10 155) 100%
+      oklch(0.12 0.04 260) 0%,
+      oklch(0.18 0.06 255) 50%,
+      oklch(0.14 0.05 258) 100%
     );
+    border-bottom: 1px solid oklch(0.78 0.14 85 / 0.3);
   }
 
   /* Score cell animation */
@@ -172,6 +197,26 @@
   }
   .rank-bronze {
     color: oklch(var(--golf-bronze));
+  }
+
+  /* Gold shimmer for #1 rank */
+  .gold-shimmer {
+    background: linear-gradient(
+      90deg,
+      oklch(0.78 0.14 85) 0%,
+      oklch(0.88 0.18 90) 50%,
+      oklch(0.78 0.14 85) 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gold-shimmer 3s ease-in-out infinite;
+  }
+
+  @keyframes gold-shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
   }
 
   /* Pulse for in-progress */
@@ -213,4 +258,27 @@
   .stagger-children > *:nth-child(6) { animation-delay: 0.30s; }
   .stagger-children > *:nth-child(7) { animation-delay: 0.35s; }
   .stagger-children > *:nth-child(8) { animation-delay: 0.40s; }
+
+  /* Navy card with gold border accent */
+  .card-navy {
+    background: oklch(0.21 0.05 258);
+    border: 1px solid oklch(0.30 0.06 258);
+  }
+
+  .card-navy-hover {
+    background: oklch(0.21 0.05 258);
+    border: 1px solid oklch(0.30 0.06 258);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .card-navy-hover:hover {
+    border-color: oklch(0.78 0.14 85 / 0.5);
+    box-shadow: 0 4px 20px oklch(0.78 0.14 85 / 0.1);
+  }
+
+  /* Gold divider line */
+  .divider-gold {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, oklch(0.78 0.14 85 / 0.5), transparent);
+  }
 }

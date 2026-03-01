@@ -1,27 +1,3 @@
-import { useState, useCallback } from "react";
-import { useParams, useNavigate } from "@tanstack/react-router";
-import {
-  MapPin,
-  Calendar,
-  Trash2,
-  Edit2,
-  Plus,
-  Minus,
-  UserMinus,
-  UserPlus,
-  Medal,
-} from "lucide-react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +9,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -40,21 +25,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import {
-  useAppContext,
-  TournamentStatus,
-  TournamentFormat,
+  Calendar,
+  Edit2,
+  MapPin,
+  Medal,
+  Minus,
+  Plus,
+  Trash2,
+  UserMinus,
+  UserPlus,
+} from "lucide-react";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
+import { PageHeader } from "../components/PageHeader";
+import { PlayerAvatar } from "../components/PlayerAvatar";
+import { FormatBadge, StatusBadge } from "../components/StatusBadge";
+import {
   type Tournament,
+  TournamentFormat,
+  TournamentStatus,
+  useAppContext,
 } from "../context/AppContext";
 import {
   usePlayersForTournament,
   useScoresForPlayer,
   useTournamentLeaderboard,
 } from "../hooks/useQueries";
-import { StatusBadge, FormatBadge } from "../components/StatusBadge";
-import { PlayerAvatar } from "../components/PlayerAvatar";
-import { PageHeader } from "../components/PageHeader";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -81,9 +81,9 @@ function stablefordPoints(strokes: number, par: number): number {
   const diff = strokes - par;
   if (diff <= -2) return 4; // eagle+
   if (diff === -1) return 3; // birdie
-  if (diff === 0) return 2;  // par
-  if (diff === 1) return 1;  // bogey
-  return 0;                  // double bogey+
+  if (diff === 0) return 2; // par
+  if (diff === 1) return 1; // bogey
+  return 0; // double bogey+
 }
 
 // ─── Scorecard Tab ────────────────────────────────────────────────────────────
@@ -127,10 +127,7 @@ function ScorecardTab({
       {/* Player selector */}
       <div>
         <Label className="font-sans text-sm mb-1.5 block">Select Player</Label>
-        <Select
-          value={effectivePlayerId}
-          onValueChange={setSelectedPlayerId}
-        >
+        <Select value={effectivePlayerId} onValueChange={setSelectedPlayerId}>
           <SelectTrigger>
             <SelectValue placeholder="Pick a player..." />
           </SelectTrigger>
@@ -155,7 +152,8 @@ function ScorecardTab({
             ""
           }
           handicap={Number(
-            registeredPlayers.find((p) => p.id === effectivePlayerId)?.handicap ?? 0n
+            registeredPlayers.find((p) => p.id === effectivePlayerId)
+              ?.handicap ?? 0n,
           )}
           isStableford={isStableford}
         />
@@ -182,9 +180,9 @@ function PlayerScorecard({
 
   // Build a map of hole -> strokes from existing scores
   const scoreMap = new Map<number, number>();
-  scores?.forEach((s) => {
+  for (const s of scores ?? []) {
     scoreMap.set(Number(s.hole), Number(s.strokes));
-  });
+  }
 
   const handleScoreChange = useCallback(
     async (hole: number, strokes: number) => {
@@ -199,21 +197,21 @@ function PlayerScorecard({
         setSaving(null);
       }
     },
-    [tournamentId, playerId, recordScore, refetch]
+    [tournamentId, playerId, recordScore, refetch],
   );
 
   // Totals
   let grossTotal = 0;
   let stablefordTotal = 0;
   let holesPlayed = 0;
-  HOLES.forEach((hole) => {
+  for (const hole of HOLES) {
     const s = scoreMap.get(hole);
     if (s !== undefined) {
       grossTotal += s;
       stablefordTotal += stablefordPoints(s, PAR_PER_HOLE);
       holesPlayed++;
     }
-  });
+  }
   const netTotal = grossTotal - handicap;
   const toPar = grossTotal - holesPlayed * PAR_PER_HOLE;
 
@@ -242,9 +240,9 @@ function PlayerScorecard({
               "text-lg font-bold font-serif",
               !isStableford && holesPlayed > 0
                 ? toPar < 0
-                  ? "text-green-600"
+                  ? "text-golf-fairway"
                   : toPar > 0
-                    ? "text-red-600"
+                    ? "text-destructive"
                     : "text-foreground"
                 : "text-foreground",
             ].join(" ")}
@@ -315,9 +313,15 @@ function ScoreGrid({
       <div className="divide-y divide-border">
         {/* Header row */}
         <div className="grid grid-cols-[2fr_1fr_2fr_1fr] gap-0 bg-muted/50">
-          <div className="px-3 py-2 text-xs font-medium text-muted-foreground font-sans">Hole</div>
-          <div className="px-1 py-2 text-xs font-medium text-muted-foreground font-sans text-center">Par</div>
-          <div className="px-1 py-2 text-xs font-medium text-muted-foreground font-sans text-center">Strokes</div>
+          <div className="px-3 py-2 text-xs font-medium text-muted-foreground font-sans">
+            Hole
+          </div>
+          <div className="px-1 py-2 text-xs font-medium text-muted-foreground font-sans text-center">
+            Par
+          </div>
+          <div className="px-1 py-2 text-xs font-medium text-muted-foreground font-sans text-center">
+            Strokes
+          </div>
           <div className="px-1 py-2 text-xs font-medium text-muted-foreground font-sans text-center">
             {isStableford ? "Pts" : "+/-"}
           </div>
@@ -325,7 +329,8 @@ function ScoreGrid({
         {holes.map((hole) => {
           const strokes = scoreMap.get(hole);
           const isSaving = saving === hole;
-          const diff = strokes !== undefined ? strokes - PAR_PER_HOLE : undefined;
+          const diff =
+            strokes !== undefined ? strokes - PAR_PER_HOLE : undefined;
           const pts =
             strokes !== undefined
               ? stablefordPoints(strokes, PAR_PER_HOLE)
@@ -354,7 +359,9 @@ function ScoreGrid({
                 <button
                   type="button"
                   className="w-7 h-7 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:bg-muted active:scale-95 transition-all"
-                  onClick={() => onScoreChange(hole, (strokes ?? PAR_PER_HOLE) - 1)}
+                  onClick={() =>
+                    onScoreChange(hole, (strokes ?? PAR_PER_HOLE) - 1)
+                  }
                   disabled={isSaving}
                   aria-label={`Decrease score for hole ${hole}`}
                 >
@@ -366,7 +373,9 @@ function ScoreGrid({
                 <button
                   type="button"
                   className="w-7 h-7 rounded-full border border-border flex items-center justify-center text-muted-foreground hover:bg-muted active:scale-95 transition-all"
-                  onClick={() => onScoreChange(hole, (strokes ?? PAR_PER_HOLE) + 1)}
+                  onClick={() =>
+                    onScoreChange(hole, (strokes ?? PAR_PER_HOLE) + 1)
+                  }
                   disabled={isSaving}
                   aria-label={`Increase score for hole ${hole}`}
                 >
@@ -379,9 +388,9 @@ function ScoreGrid({
                     className={[
                       "text-xs font-bold font-sans",
                       diff < 0
-                        ? "text-green-600"
+                        ? "text-golf-fairway"
                         : diff > 0
-                          ? "text-red-600"
+                          ? "text-destructive"
                           : "text-muted-foreground",
                     ].join(" ")}
                   >
@@ -409,7 +418,8 @@ function ScoreGrid({
 
 function PlayersTab({ tournamentId }: { tournamentId: string }) {
   const { players, registerPlayer, removePlayer } = useAppContext();
-  const { data: registeredPlayers, isLoading } = usePlayersForTournament(tournamentId);
+  const { data: registeredPlayers, isLoading } =
+    usePlayersForTournament(tournamentId);
   const [showAdd, setShowAdd] = useState(false);
   const [adding, setAdding] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
@@ -552,7 +562,8 @@ function LeaderboardTab({
   tournamentId: string;
   isStableford: boolean;
 }) {
-  const { data: leaderboard, isLoading } = useTournamentLeaderboard(tournamentId);
+  const { data: leaderboard, isLoading } =
+    useTournamentLeaderboard(tournamentId);
   const { data: players } = usePlayersForTournament(tournamentId);
 
   const playerMap = new Map(players?.map((p) => [p.id, p]) ?? []);
@@ -570,7 +581,10 @@ function LeaderboardTab({
   if (!leaderboard || leaderboard.length === 0) {
     return (
       <div className="p-4 text-center py-12">
-        <Medal size={36} className="text-muted-foreground mx-auto mb-3 opacity-40" />
+        <Medal
+          size={36}
+          className="text-muted-foreground mx-auto mb-3 opacity-40"
+        />
         <p className="text-sm text-muted-foreground font-sans">
           No scores recorded yet
         </p>
@@ -579,9 +593,9 @@ function LeaderboardTab({
   }
 
   const RANK_STYLES = [
-    "text-yellow-500 font-bold",  // 1st
-    "text-slate-400 font-bold",   // 2nd
-    "text-amber-600 font-bold",   // 3rd
+    "text-primary font-bold", // 1st gold
+    "text-golf-silver font-bold", // 2nd silver
+    "text-golf-bronze font-bold", // 3rd bronze
   ];
 
   return (
@@ -612,9 +626,7 @@ function LeaderboardTab({
             className={[
               "grid grid-cols-[2rem_1fr_2rem_2.5rem_2.5rem_3rem] gap-1 items-center",
               "bg-card border border-border rounded-xl px-3 py-3",
-              rank === 1
-                ? "border-yellow-200 bg-yellow-50/30"
-                : "",
+              rank === 1 ? "border-primary/30 bg-primary/5" : "",
             ].join(" ")}
           >
             <span className={`text-sm font-bold font-sans ${rankStyle}`}>
@@ -640,9 +652,9 @@ function LeaderboardTab({
                 "text-xs font-bold font-sans text-center",
                 !isStableford && gross > 0
                   ? toPar < 0
-                    ? "text-green-600"
+                    ? "text-golf-fairway"
                     : toPar > 0
-                      ? "text-red-600"
+                      ? "text-destructive"
                       : "text-muted-foreground"
                   : "text-primary",
               ].join(" ")}
@@ -725,7 +737,9 @@ function EditTournamentDialog({
             <Label className="font-sans text-sm">Location</Label>
             <Input
               value={form.location}
-              onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, location: e.target.value }))
+              }
             />
           </div>
           <div className="space-y-1.5">
@@ -748,9 +762,15 @@ function EditTournamentDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={TournamentFormat.strokePlay}>Stroke Play</SelectItem>
-                <SelectItem value={TournamentFormat.matchPlay}>Match Play</SelectItem>
-                <SelectItem value={TournamentFormat.stableford}>Stableford</SelectItem>
+                <SelectItem value={TournamentFormat.strokePlay}>
+                  Stroke Play
+                </SelectItem>
+                <SelectItem value={TournamentFormat.matchPlay}>
+                  Match Play
+                </SelectItem>
+                <SelectItem value={TournamentFormat.stableford}>
+                  Stableford
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -766,14 +786,25 @@ function EditTournamentDialog({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={TournamentStatus.upcoming}>Upcoming</SelectItem>
-                <SelectItem value={TournamentStatus.inProgress}>In Progress</SelectItem>
-                <SelectItem value={TournamentStatus.completed}>Completed</SelectItem>
+                <SelectItem value={TournamentStatus.upcoming}>
+                  Upcoming
+                </SelectItem>
+                <SelectItem value={TournamentStatus.inProgress}>
+                  In Progress
+                </SelectItem>
+                <SelectItem value={TournamentStatus.completed}>
+                  Completed
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="flex gap-2 pt-2">
-            <Button type="button" variant="outline" className="flex-1" onClick={onClose}>
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1"
+              onClick={onClose}
+            >
               Cancel
             </Button>
             <Button type="submit" className="flex-1" disabled={saving}>
@@ -803,7 +834,9 @@ export default function TournamentDetail() {
       <main className="min-h-screen pb-nav bg-background">
         <PageHeader title="Tournament" backHref="/tournaments" />
         <div className="max-w-md mx-auto px-4 py-16 text-center">
-          <p className="text-muted-foreground font-sans">Tournament not found.</p>
+          <p className="text-muted-foreground font-sans">
+            Tournament not found.
+          </p>
         </div>
       </main>
     );
@@ -883,7 +916,9 @@ export default function TournamentDetail() {
           </div>
           <div className="flex items-center gap-1 text-xs text-muted-foreground font-sans">
             <MapPin size={12} />
-            <span className="truncate max-w-[140px]">{tournament.location}</span>
+            <span className="truncate max-w-[140px]">
+              {tournament.location}
+            </span>
           </div>
         </div>
       </div>

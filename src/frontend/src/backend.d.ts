@@ -35,6 +35,10 @@ export interface Tournament {
     location: string;
     format: TournamentFormat;
 }
+export interface UserProfile {
+    username: string;
+    email: string;
+}
 export enum TournamentFormat {
     matchPlay = "matchPlay",
     stableford = "stableford",
@@ -45,22 +49,33 @@ export enum TournamentStatus {
     completed = "completed",
     inProgress = "inProgress"
 }
+export enum UserRole {
+    admin = "admin",
+    user = "user",
+    guest = "guest"
+}
 export interface backendInterface {
+    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     createPlayer(id: string, name: string, handicap: bigint): Promise<void>;
     createTournament(id: string, name: string, date: Time, format: TournamentFormat, location: string): Promise<void>;
     deletePlayer(id: string): Promise<void>;
     deleteTournament(id: string): Promise<void>;
     getAllPlayers(): Promise<Array<Player>>;
     getAllTournaments(): Promise<Array<Tournament>>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
+    getCallerUserRole(): Promise<UserRole>;
     getPlayer(id: string): Promise<Player>;
     getPlayersForTournament(tournamentId: string): Promise<Array<Player>>;
     getScoresForPlayer(tournamentId: string, playerId: string): Promise<Array<Score>>;
     getTournament(id: string): Promise<Tournament>;
     getTournamentLeaderboard(tournamentId: string): Promise<Array<LeaderboardEntry>>;
     getTournamentsForPlayer(playerId: string): Promise<Array<Tournament>>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
+    isCallerAdmin(): Promise<boolean>;
     recordScore(id: string, tournamentId: string, playerId: string, hole: bigint, strokes: bigint): Promise<void>;
     registerPlayerToTournament(tournamentId: string, playerId: string): Promise<void>;
     removePlayerFromTournament(tournamentId: string, playerId: string): Promise<void>;
+    saveCallerUserProfile(profile: UserProfile): Promise<void>;
     updatePlayer(id: string, name: string | null, handicap: bigint | null): Promise<void>;
     updateTournament(id: string, name: string | null, date: Time | null, format: TournamentFormat | null, status: TournamentStatus | null, location: string | null): Promise<void>;
 }

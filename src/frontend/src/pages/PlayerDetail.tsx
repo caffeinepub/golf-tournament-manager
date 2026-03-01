@@ -1,13 +1,3 @@
-import { useState } from "react";
-import { useParams, useNavigate } from "@tanstack/react-router";
-import { Edit2, Trash2, Trophy, Calendar, MapPin } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,14 +10,24 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useNavigate, useParams } from "@tanstack/react-router";
+import { Calendar, Edit2, MapPin, Trash2, Trophy } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
+import { PageHeader } from "../components/PageHeader";
+import { PlayerAvatar } from "../components/PlayerAvatar";
+import { FormatBadge, StatusBadge } from "../components/StatusBadge";
 import { useAppContext } from "../context/AppContext";
 import { useTournamentsForPlayer } from "../hooks/useQueries";
-import { StatusBadge, FormatBadge } from "../components/StatusBadge";
-import { PlayerAvatar } from "../components/PlayerAvatar";
-import { PageHeader } from "../components/PageHeader";
 
 function formatDate(timeNs: bigint): string {
   const ms = Number(timeNs / 1_000_000n);
@@ -69,14 +69,18 @@ export default function PlayerDetail() {
 
   async function handleSaveEdit(e: React.FormEvent) {
     e.preventDefault();
-    const hcp = parseInt(editForm.handicap);
-    if (!editForm.name.trim() || isNaN(hcp)) {
+    const hcp = Number.parseInt(editForm.handicap);
+    if (!editForm.name.trim() || Number.isNaN(hcp)) {
       toast.error("Please fill in all fields");
       return;
     }
     setSaving(true);
     try {
-      await updatePlayer({ id: player!.id, name: editForm.name, handicap: hcp });
+      await updatePlayer({
+        id: player!.id,
+        name: editForm.name,
+        handicap: hcp,
+      });
       toast.success("Player updated");
       setShowEdit(false);
     } catch {
@@ -131,9 +135,12 @@ export default function PlayerDetail() {
               </AlertDialogTrigger>
               <AlertDialogContent className="max-w-sm mx-4">
                 <AlertDialogHeader>
-                  <AlertDialogTitle className="font-serif">Delete Player?</AlertDialogTitle>
+                  <AlertDialogTitle className="font-serif">
+                    Delete Player?
+                  </AlertDialogTitle>
                   <AlertDialogDescription className="font-sans">
-                    This will permanently delete "{player.name}". This cannot be undone.
+                    This will permanently delete "{player.name}". This cannot be
+                    undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -184,7 +191,10 @@ export default function PlayerDetail() {
           </div>
         ) : !tournamentHistory || tournamentHistory.length === 0 ? (
           <div className="text-center py-10 bg-card rounded-xl border border-border">
-            <Trophy size={32} className="text-muted-foreground mx-auto mb-2 opacity-40" />
+            <Trophy
+              size={32}
+              className="text-muted-foreground mx-auto mb-2 opacity-40"
+            />
             <p className="text-sm text-muted-foreground font-sans">
               No tournaments played yet
             </p>
@@ -196,7 +206,12 @@ export default function PlayerDetail() {
                 type="button"
                 key={t.id}
                 className="w-full text-left bg-card rounded-xl border border-border p-3 hover:shadow-card-hover transition-all"
-                onClick={() => void navigate({ to: "/tournaments/$id", params: { id: t.id } })}
+                onClick={() =>
+                  void navigate({
+                    to: "/tournaments/$id",
+                    params: { id: t.id },
+                  })
+                }
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">

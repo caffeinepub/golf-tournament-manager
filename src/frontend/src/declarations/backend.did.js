@@ -8,6 +8,11 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
+});
 export const Time = IDL.Int;
 export const TournamentFormat = IDL.Variant({
   'matchPlay' : IDL.Null,
@@ -34,6 +39,10 @@ export const Tournament = IDL.Record({
   'location' : IDL.Text,
   'format' : TournamentFormat,
 });
+export const UserProfile = IDL.Record({
+  'username' : IDL.Text,
+  'email' : IDL.Text,
+});
 export const Score = IDL.Record({
   'id' : IDL.Text,
   'hole' : IDL.Nat,
@@ -48,6 +57,8 @@ export const LeaderboardEntry = IDL.Record({
 });
 
 export const idlService = IDL.Service({
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'createPlayer' : IDL.Func([IDL.Text, IDL.Text, IDL.Nat], [], []),
   'createTournament' : IDL.Func(
       [IDL.Text, IDL.Text, Time, TournamentFormat, IDL.Text],
@@ -58,6 +69,8 @@ export const idlService = IDL.Service({
   'deleteTournament' : IDL.Func([IDL.Text], [], []),
   'getAllPlayers' : IDL.Func([], [IDL.Vec(Player)], ['query']),
   'getAllTournaments' : IDL.Func([], [IDL.Vec(Tournament)], ['query']),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getPlayer' : IDL.Func([IDL.Text], [Player], ['query']),
   'getPlayersForTournament' : IDL.Func(
       [IDL.Text],
@@ -80,6 +93,12 @@ export const idlService = IDL.Service({
       [IDL.Vec(Tournament)],
       ['query'],
     ),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'recordScore' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, IDL.Nat, IDL.Nat],
       [],
@@ -87,6 +106,7 @@ export const idlService = IDL.Service({
     ),
   'registerPlayerToTournament' : IDL.Func([IDL.Text, IDL.Text], [], []),
   'removePlayerFromTournament' : IDL.Func([IDL.Text, IDL.Text], [], []),
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'updatePlayer' : IDL.Func(
       [IDL.Text, IDL.Opt(IDL.Text), IDL.Opt(IDL.Nat)],
       [],
@@ -109,6 +129,11 @@ export const idlService = IDL.Service({
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
+  });
   const Time = IDL.Int;
   const TournamentFormat = IDL.Variant({
     'matchPlay' : IDL.Null,
@@ -135,6 +160,7 @@ export const idlFactory = ({ IDL }) => {
     'location' : IDL.Text,
     'format' : TournamentFormat,
   });
+  const UserProfile = IDL.Record({ 'username' : IDL.Text, 'email' : IDL.Text });
   const Score = IDL.Record({
     'id' : IDL.Text,
     'hole' : IDL.Nat,
@@ -149,6 +175,8 @@ export const idlFactory = ({ IDL }) => {
   });
   
   return IDL.Service({
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'createPlayer' : IDL.Func([IDL.Text, IDL.Text, IDL.Nat], [], []),
     'createTournament' : IDL.Func(
         [IDL.Text, IDL.Text, Time, TournamentFormat, IDL.Text],
@@ -159,6 +187,8 @@ export const idlFactory = ({ IDL }) => {
     'deleteTournament' : IDL.Func([IDL.Text], [], []),
     'getAllPlayers' : IDL.Func([], [IDL.Vec(Player)], ['query']),
     'getAllTournaments' : IDL.Func([], [IDL.Vec(Tournament)], ['query']),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getPlayer' : IDL.Func([IDL.Text], [Player], ['query']),
     'getPlayersForTournament' : IDL.Func(
         [IDL.Text],
@@ -181,6 +211,12 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(Tournament)],
         ['query'],
       ),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'recordScore' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, IDL.Nat, IDL.Nat],
         [],
@@ -188,6 +224,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'registerPlayerToTournament' : IDL.Func([IDL.Text, IDL.Text], [], []),
     'removePlayerFromTournament' : IDL.Func([IDL.Text, IDL.Text], [], []),
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'updatePlayer' : IDL.Func(
         [IDL.Text, IDL.Opt(IDL.Text), IDL.Opt(IDL.Nat)],
         [],

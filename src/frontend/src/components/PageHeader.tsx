@@ -1,7 +1,7 @@
-import { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import type { ReactNode } from "react";
 
 interface PageHeaderProps {
   title: string;
@@ -26,7 +26,9 @@ export function PageHeader({
     <header
       className={[
         "sticky top-0 z-40",
-        isGreen ? "header-gradient text-white" : "bg-card border-b border-border",
+        isGreen
+          ? "header-gradient text-white"
+          : "bg-card border-b border-border",
       ].join(" ")}
     >
       <div className="max-w-md mx-auto px-4 py-4">

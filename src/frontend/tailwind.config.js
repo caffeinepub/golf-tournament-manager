@@ -16,8 +16,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        serif: ["'Libre Baskerville'", "Georgia", "serif"],
-        sans: ["'DM Sans'", "system-ui", "sans-serif"],
+        serif: ["'Playfair Display'", "Georgia", "serif"],
+        sans: ["'Cabinet Grotesk'", "'DM Sans'", "system-ui", "sans-serif"],
       },
       colors: {
         border: "oklch(var(--border))",
@@ -90,9 +90,11 @@ export default {
         "2xl": "calc(var(--radius) + 8px)",
       },
       boxShadow: {
-        xs: "0 1px 2px 0 rgba(0,0,0,0.05)",
-        card: "0 2px 8px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)",
-        "card-hover": "0 4px 16px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06)",
+        xs: "0 1px 2px 0 rgba(0,0,0,0.2)",
+        card: "0 2px 12px rgba(0,0,0,0.3), 0 1px 4px rgba(0,0,0,0.2)",
+        "card-hover": "0 4px 24px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3)",
+        gold: "0 2px 12px oklch(0.78 0.14 85 / 0.3)",
+        "gold-lg": "0 4px 24px oklch(0.78 0.14 85 / 0.25)",
       },
       keyframes: {
         "accordion-down": {
